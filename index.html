@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Calendar 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8eef4;
+    --surface: #ffffff;
+    --border: #d0dae4;
+    --text: #1a2332;
+    --muted: #7a8fa3;
+    --accent: #e63329;
+    --accent-dark: #b82620;
+    --approved: #1a7a4a;
+    --pending: #c47a1a;
+    --month-header: #f0f5fa;
+    --shadow: 0 2px 12px rgba(0,30,60,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'DM Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 42px;
+    height: 42px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: system-ui, sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  header h1 span {
+    color: var(--accent);
+  }
+
+  header .header-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-left: auto;
+    font-family: system-ui, sans-serif;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: 20px;
+  }
+
+  .header-stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    font-family: system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+    white-space: nowrap;
+  }
+
+  .header-stat-count {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 7px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: system-ui, sans-serif;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .dot-approved { background: var(--approved); }
+  .dot-pending  { background: var(--pending); }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 4px;
+    font-family: system-ui, sans-serif;
+  }
+
+  .filter-btn {
+    font-family: system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow);
+  }
+
+  .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .filter-btn.all.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .months-wrapper { display: flex; flex-direction: column; gap: 28px; }
+
+  .month-block {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--surface);
+  }
+
+  .month-label {
+    background: var(--month-header);
+    border-bottom: 2px solid var(--accent);
+    padding: 12px 20px;
+    font-family: system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .month-label .event-count {
+    font-family: system-ui, sans-serif;
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .dow-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: var(--border);
+    gap: 1px;
+  }
+
+  .dow-cell {
+    background: #f4f8fc;
+    padding: 6px 8px;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    font-family: system-ui, sans-serif;
+    font-weight: 600;
+  }
+
+  .week-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: var(--border);
+    gap: 1px;
+    border-top: 1px solid var(--border);
+  }
+
+  .day-cell {
+    background: var(--surface);
+    position: relative;
+  }
+
+  .day-cell.empty { background: #f4f8fc; }
+  .day-cell.today-marker { background: #fef5f5; }
+
+  .day-num {
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: block;
+    text-align: right;
+    padding: 5px 6px 0;
+    line-height: 1;
+    font-family: system-ui, sans-serif;
+  }
+
+  .day-num.today {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .event-bar {
+    position: absolute;
+    border-radius: 4px;
+    border-left: 3px solid;
+    font-size: 0.58rem;
+    font-family: system-ui, sans-serif;
+    font-weight: 500;
+    padding: 0 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.15s, filter 0.15s;
+    z-index: 2;
+  }
+
+  .event-bar:hover { filter: brightness(0.92); }
+  .event-bar.approved { border-color: var(--approved); color: #0f5c33; background: #e8f5ee; }
+  .event-bar.pending  { border-color: var(--pending);  color: #7a4a0a; background: #fef3e0; }
+  .event-bar.dimmed   { opacity: 0.12; }
+
+  .bar-stars { color: #e6a800; font-size: 0.56rem; flex-shrink: 0; }
+  .bar-name  { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-tag   {
+    flex-shrink: 0;
+    padding: 0 4px;
+    border-radius: 6px;
+    font-size: 0.5rem;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  /* ── Popover ── */
+  .popover-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+  }
+
+  .popover-overlay.open { display: block; }
+
+  .popover {
+    position: fixed;
+    z-index: 101;
+    width: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,30,60,0.16), 0 2px 8px rgba(0,30,60,0.08);
+    overflow: hidden;
+    animation: popIn 0.15s ease;
+    font-family: system-ui, sans-serif;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .popover-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    background: var(--month-header);
+  }
+
+  .popover-header.approved { border-left: 4px solid var(--approved); }
+  .popover-header.pending  { border-left: 4px solid var(--pending); }
+
+  .popover-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 6px;
+    padding-right: 90px;
+  }
+
+  .popover-header-actions {
+    position: absolute;
+    top: 10px; right: 10px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .popover-edit-btn {
+    font-family: system-ui, sans-serif;
+    font-size: 0.62rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .popover-edit-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .popover-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .popover-status.approved { background: #e8f5ee; color: var(--approved); }
+  .popover-status.pending  { background: #fef3e0; color: var(--pending); }
+
+  .popover-body {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .popover-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.72rem;
+  }
+
+  .popover-icon { flex-shrink: 0; width: 16px; color: var(--muted); font-size: 0.8rem; margin-top: 1px; }
+
+  .popover-row-label {
+    color: var(--muted);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    min-width: 52px;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+
+  .popover-row-value { color: var(--text); line-height: 1.4; }
+  .popover-stars { color: #e6a800; letter-spacing: 2px; }
+
+  .popover-member-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.62rem;
+    font-weight: 500;
+    margin: 2px 2px 0 0;
+    border: 1px solid;
+  }
+
+  .popover-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.1s, color 0.1s;
+  }
+
+  .popover-close:hover { background: var(--border); color: var(--text); }
+
+  /* ── Edit form ── */
+  .popover-edit-form {
+    padding: 12px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: system-ui, sans-serif;
+  }
+
+  .edit-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .edit-row label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .edit-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .edit-row-2col > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .edit-row-2col label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .edit-input {
+    font-family: system-ui, sans-serif;
+    font-size: 0.72rem;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .edit-input:focus { outline: none; border-color: var(--accent); }
+
+  .edit-member-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .member-toggle {
+    font-family: system-ui, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .member-toggle.selected { border-width: 1.5px; }
+
+  .edit-stars {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #ccc;
+    padding: 0 1px;
+    transition: color 0.1s, transform 0.1s;
+    line-height: 1;
+  }
+
+  .star-btn.on { color: #e6a800; }
+  .star-btn:hover { transform: scale(1.2); }
+
+  .star-clear {
+    font-family: system-ui, sans-serif;
+    font-size: 0.58rem;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    margin-left: 4px;
+  }
+
+  .star-clear:hover { color: var(--text); border-color: var(--muted); }
+
+  .edit-row-approval {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .edit-row-approval label:first-child {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .toggle-switch input { display: none; }
+
+  .toggle-slider {
+    width: 36px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px; left: 3px;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .toggle-switch input:checked + .toggle-slider { background: var(--approved); }
+  .toggle-switch input:checked + .toggle-slider::after { left: 19px; }
+
+  .toggle-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    min-width: 55px;
+    font-family: system-ui, sans-serif;
+  }
+
+  .edit-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  .edit-cancel-btn {
+    font-family: system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .edit-cancel-btn:hover { border-color: var(--muted); color: var(--text); }
+
+  .edit-save-btn {
+    font-family: system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 5px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .edit-save-btn:hover { background: var(--accent-dark); }
+
+  .event-bar { cursor: pointer; }
+
+  @media (max-width: 700px) {
+    body { padding: 16px 8px; }
+    header h1 { font-size: 1.5rem; }
+    .event-bar { font-size: 0.5rem; padding: 0 3px; }
+    .bar-tag { display: none; }
+    .popover { width: 92vw; }
+  }
+
+  /* ── Events Table ── */
+  .table-section {
+    margin-top: 48px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--surface);
+  }
+
+  .table-header-row {
+    background: var(--month-header);
+    border-bottom: 2px solid var(--accent);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .table-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: system-ui, sans-serif;
+    flex-shrink: 0;
+  }
+
+  .table-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-left: auto;
+    align-items: center;
+  }
+
+  .table-search {
+    font-family: system-ui, sans-serif;
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface);
+    color: var(--text);
+    width: 180px;
+    transition: border-color 0.15s;
+  }
+
+  .table-search:focus { outline: none; border-color: var(--accent); }
+
+  .table-select {
+    font-family: system-ui, sans-serif;
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .table-select:focus { outline: none; border-color: var(--accent); }
+
+  .table-wrap { overflow-x: auto; }
+
+  #eventsTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+    font-family: system-ui, sans-serif;
+  }
+
+  #eventsTable thead tr {
+    background: #f4f8fc;
+    border-bottom: 2px solid var(--border);
+  }
+
+  #eventsTable th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  #eventsTable th.sortable { cursor: pointer; }
+  #eventsTable th.sortable:hover { color: var(--accent); }
+  #eventsTable th.sort-asc .sort-icon,
+  #eventsTable th.sort-desc .sort-icon { color: var(--accent); }
+
+  #eventsTable tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  #eventsTable tbody tr:last-child { border-bottom: none; }
+  #eventsTable tbody tr:hover { background: #f4f8fc; cursor: pointer; }
+
+  #eventsTable td {
+    padding: 10px 14px;
+    vertical-align: middle;
+    color: var(--text);
+  }
+
+  .td-name { font-weight: 600; }
+
+  .td-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  .td-status.approved { background: #e8f5ee; color: var(--approved); }
+  .td-status.pending  { background: #fef3e0; color: var(--pending); }
+
+  .td-member-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-size: 0.6rem;
+    font-weight: 500;
+    margin: 1px 2px 1px 0;
+    border: 1px solid;
+  }
+
+  .td-stars { color: #e6a800; letter-spacing: 1px; }
+
+  .table-footer {
+    padding: 10px 16px;
+    font-size: 0.65rem;
+    font-family: system-ui, sans-serif;
+    color: var(--muted);
+    background: var(--month-header);
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.06em;
+  }
+
+  .no-results {
+    padding: 28px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-family: system-ui, sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <div class="logo-mark">IGT</div>
+    <h1>Events <span>Calendar</span></h1>
+  </div>
+  <div class="header-stats" id="headerStats"></div>
+  <span class="header-sub">March → July 2026</span>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot dot-approved"></div> Approved</div>
+  <div class="legend-item"><div class="legend-dot dot-pending"></div> Pending / No Status</div>
+  <div class="legend-item"><span style="color:var(--accent);font-size:0.9rem;line-height:1;">★</span> Priority Rating</div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+  <span class="filter-label">Filter by:</span>
+  <button class="filter-btn all active" data-person="all">Everyone</button>
+</div>
+
+<div class="months-wrapper" id="calendar"></div>
+
+<!-- ── Events Table ── -->
+<div class="table-section">
+  <div class="table-header-row">
+    <h2 class="table-title">All Events</h2>
+    <div class="table-controls">
+      <input type="text" id="tableSearch" class="table-search" placeholder="Search events…" />
+      <select id="tablePersonFilter" class="table-select">
+        <option value="all">All Team Members</option>
+      </select>
+      <select id="tableStatusFilter" class="table-select">
+        <option value="all">All Statuses</option>
+        <option value="approved">Approved</option>
+        <option value="pending">Pending</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table id="eventsTable">
+      <thead>
+        <tr>
+          <th data-col="name" class="sortable">Event <span class="sort-icon">↕</span></th>
+          <th data-col="start" class="sortable">Start <span class="sort-icon">↕</span></th>
+          <th data-col="end" class="sortable">End <span class="sort-icon">↕</span></th>
+          <th data-col="city">Location</th>
+          <th data-col="members">Team</th>
+          <th data-col="priority" class="sortable">Priority <span class="sort-icon">↕</span></th>
+          <th data-col="approved" class="sortable">Status <span class="sort-icon">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="table-footer" id="tableFooter"></div>
+</div>
+
+<!-- Popover overlay (closes on outside click) -->
+<div class="popover-overlay" id="popoverOverlay"></div>
+<!-- Popover card -->
+<div class="popover" id="popover" style="display:none;">
+  <div class="popover-header" id="popoverHeader">
+    <div class="popover-title" id="popoverTitle"></div>
+    <span class="popover-status" id="popoverStatus"></span>
+    <div class="popover-header-actions">
+      <button class="popover-edit-btn" id="popoverEditBtn">✏️ Edit</button>
+      <button class="popover-close" id="popoverClose">✕</button>
+    </div>
+  </div>
+  <!-- View mode -->
+  <div class="popover-body" id="popoverBody"></div>
+  <!-- Edit mode -->
+  <div class="popover-edit-form" id="popoverEditForm" style="display:none;">
+    <div class="edit-row">
+      <label>Name</label>
+      <input type="text" id="editName" class="edit-input" />
+    </div>
+    <div class="edit-row edit-row-2col">
+      <div>
+        <label>Start Date</label>
+        <input type="date" id="editStart" class="edit-input" />
+      </div>
+      <div>
+        <label>End Date</label>
+        <input type="date" id="editEnd" class="edit-input" />
+      </div>
+    </div>
+    <div class="edit-row">
+      <label>City</label>
+      <input type="text" id="editCity" class="edit-input" placeholder="City" />
+    </div>
+    <div class="edit-row">
+      <label>Team Members</label>
+      <div class="edit-member-toggles" id="editMemberToggles"></div>
+    </div>
+    <div class="edit-row">
+      <label>Priority (0 = none)</label>
+      <div class="edit-stars" id="editStars"></div>
+    </div>
+    <div class="edit-row edit-row-approval">
+      <label>Approval</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="editApproved" />
+        <span class="toggle-slider"></span>
+        <span class="toggle-label" id="editApprovedLabel">Pending</span>
+      </label>
+    </div>
+    <div class="edit-actions">
+      <button class="edit-cancel-btn" id="editCancelBtn">Cancel</button>
+      <button class="edit-save-btn" id="editSaveBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const events = [
+  { name: "VIPPS", start: "2026-03-03", end: "2026-03-05", city: "Victoria", priority: 4, members: "Phil", approved: true },
+  { name: "OBIO IWD WiHi Pitch Competition", start: "2026-03-05", end: "2026-03-05", city: "Toronto", priority: 3, members: "Clara", approved: true },
+  { name: "LSI USA", start: "2026-03-16", end: "2026-03-20", city: "Dana Point", priority: 5, members: "Clara", approved: true },
+  { name: "SIR 2026 Annual Meeting", start: "2026-04-11", end: "2026-04-15", city: "Toronto", priority: 0, members: "", approved: false },
+  { name: "Falcon's Fortunes Pitch Event", start: "2026-04-15", end: "2026-04-15", city: "Toronto", priority: 0, members: "Clara", approved: true },
+  { name: "Medventions Atlantic Innovation Showcase", start: "2026-04-15", end: "2026-04-15", city: "Halifax", priority: 0, members: "Ahmed", approved: true },
+  { name: "Mintz Investor Partnering Event", start: "2026-04-20", end: "2026-04-20", city: "Toronto", priority: 4, members: "Clara, Raphael", approved: true },
+  { name: "HDRN: Health Data for All of Us", start: "2026-04-21", end: "2026-04-21", city: "Ottawa", priority: 0, members: "Phil", approved: true },
+  { name: "Bloom Burton Healthcare Investor Conference", start: "2026-04-21", end: "2026-04-22", city: "Toronto", priority: 0, members: "", approved: true },
+  { name: "Medtech Networking Reception", start: "2026-04-22", end: "2026-04-22", city: "Toronto", priority: 0, members: "", approved: true },
+  { name: "MaRS Impact Health", start: "2026-04-23", end: "2026-04-23", city: "Toronto", priority: 0, members: "", approved: true },
+  { name: "MIIT Conference", start: "2026-04-24", end: "2026-04-24", city: "Hamilton", priority: 0, members: "", approved: true },
+
+  { name: "Medtech Strategist Dublin", start: "2026-04-28", end: "2026-04-30", city: "Dublin", priority: 0, members: "", approved: false },
+  { name: "Discovery X", start: "2026-04-29", end: "2026-04-30", city: "Toronto", priority: 0, members: "Ahmed", approved: true },
+  { name: "IAAP Canada Symposium 2026", start: "2026-05-04", end: "2026-05-07", city: "Toronto", priority: 0, members: "Phil", approved: true },
+  { name: "National Healthcare Business Development Conference", start: "2026-05-07", end: "2026-05-08", city: "Toronto", priority: 0, members: "Raphael", approved: true },
+  { name: "The Web Summit", start: "2026-05-11", end: "2026-05-15", city: "Vancouver", priority: 0, members: "", approved: false },
+  { name: "Upperbound", start: "2026-05-19", end: "2026-05-22", city: "Edmonton", priority: 0, members: "", approved: false },
+  { name: "Medical Device Playbook Newport", start: "2026-05-21", end: "2026-05-21", city: "Newport Beach", priority: 0, members: "", approved: false },
+  { name: "Medventions Innovation Day", start: "2026-06-09", end: "2026-06-09", city: "", priority: 0, members: "Ahmed", approved: true },
+  { name: "e-Health26", start: "2026-06-14", end: "2026-06-16", city: "Halifax", priority: 0, members: "", approved: false },
+  { name: "LSI Asia Singapore", start: "2026-06-30", end: "2026-07-02", city: "Singapore", priority: 0, members: "", approved: false },
+];
+
+const months = [
+  { year: 2026, month: 2, label: "March" },
+  { year: 2026, month: 3, label: "April" },
+  { year: 2026, month: 4, label: "May" },
+  { year: 2026, month: 5, label: "June" },
+  { year: 2026, month: 6, label: "July" },
+];
+
+const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+const personColors = {
+  "Phil":    { bg: "#e8f0fd", border: "#4a7fd4", text: "#1a3d7a" },
+  "Clara":   { bg: "#fce8f3", border: "#c94f9e", text: "#7a1a54" },
+  "Ahmed":   { bg: "#e8f7ee", border: "#3a9e6b", text: "#1a5c38" },
+  "Raphael": { bg: "#fef3e2", border: "#d4901a", text: "#7a4a0a" },
+  "Leo":     { bg: "#f0e8fd", border: "#8b4fd4", text: "#4a1a7a" },
+};
+
+function parseDate(str) {
+  const parts = str.split('-').map(Number);
+  return new Date(parts[0], parts[1]-1, parts[2]);
+}
+
+function getMemberList(ev) {
+  if (!ev.members) return [];
+  return ev.members.split(',').map(m => m.trim()).filter(Boolean);
+}
+
+function sameDay(a, b) {
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+
+// Build unique people list — seed with known team members so they always appear
+const allPeople = ["Ahmed", "Clara", "Leo", "Phil", "Raphael"];
+events.forEach(ev => getMemberList(ev).forEach(p => { if (!allPeople.includes(p)) allPeople.push(p); }));
+allPeople.sort();
+
+// ── Header member stats ──
+const headerStats = document.getElementById('headerStats');
+allPeople.forEach(person => {
+  const count = events.filter(ev => getMemberList(ev).includes(person)).length;
+  const c = personColors[person];
+  const pill = document.createElement('div');
+  pill.className = 'header-stat-pill';
+  if (c) pill.style.borderColor = c.border;
+  pill.innerHTML = `<span style="font-weight:700;color:${c ? c.text : 'var(--text)'}">${person}</span><span class="header-stat-count" style="background:${c ? c.border : 'var(--accent)'}">${count}</span>`;
+  headerStats.appendChild(pill);
+});
+
+let activeFilter = 'all';
+const filterBar = document.getElementById('filterBar');
+
+allPeople.forEach(person => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn';
+  btn.dataset.person = person;
+  btn.textContent = person;
+  const c = personColors[person];
+  if (c) {
+    btn.addEventListener('mouseenter', () => { if (!btn.classList.contains('active')) { btn.style.borderColor=c.border; btn.style.color=c.text; }});
+    btn.addEventListener('mouseleave', () => { if (!btn.classList.contains('active')) { btn.style.borderColor=''; btn.style.color=''; }});
+  }
+  filterBar.appendChild(btn);
+});
+
+filterBar.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  activeFilter = btn.dataset.person;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = b.style.borderColor = b.style.color = '';
+  });
+  btn.classList.add('active');
+  if (activeFilter !== 'all') {
+    const c = personColors[activeFilter];
+    if (c) { btn.style.background=c.border; btn.style.borderColor=c.border; btn.style.color='#fff'; }
+  }
+  document.querySelectorAll('.event-bar').forEach(bar => {
+    const list = (bar.dataset.members||'').split(',').map(m=>m.trim());
+    bar.classList.toggle('dimmed', activeFilter!=='all' && !list.includes(activeFilter));
+  });
+});
+
+// ── Popover + Edit logic ──
+const popover         = document.getElementById('popover');
+const popoverOverlay  = document.getElementById('popoverOverlay');
+const popoverClose    = document.getElementById('popoverClose');
+const popoverEditBtn  = document.getElementById('popoverEditBtn');
+const popoverHeader   = document.getElementById('popoverHeader');
+const popoverTitle    = document.getElementById('popoverTitle');
+const popoverStatus   = document.getElementById('popoverStatus');
+const popoverBody     = document.getElementById('popoverBody');
+const popoverEditForm = document.getElementById('popoverEditForm');
+const editName        = document.getElementById('editName');
+const editStart       = document.getElementById('editStart');
+const editEnd         = document.getElementById('editEnd');
+const editCity        = document.getElementById('editCity');
+const editApproved    = document.getElementById('editApproved');
+const editApprovedLbl = document.getElementById('editApprovedLabel');
+const editMemberToggles = document.getElementById('editMemberToggles');
+const editStarsEl     = document.getElementById('editStars');
+const editSaveBtn     = document.getElementById('editSaveBtn');
+const editCancelBtn   = document.getElementById('editCancelBtn');
+
+let currentEvIdx = null;
+let editPriority = 0;
+
+function formatDate(dateStr) {
+  const d = parseDate(dateStr);
+  return d.toLocaleDateString('en-CA', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function showViewMode(ev) {
+  popoverBody.style.display = 'flex';
+  popoverEditForm.style.display = 'none';
+  popoverEditBtn.style.display = '';
+
+  popoverTitle.textContent = ev.name;
+  popoverHeader.className = 'popover-header ' + (ev.approved ? 'approved' : 'pending');
+  popoverStatus.className = 'popover-status ' + (ev.approved ? 'approved' : 'pending');
+  popoverStatus.textContent = ev.approved ? '✓ Approved' : '⏳ Pending';
+
+  popoverBody.innerHTML = '';
+
+  function addRow(icon, label, valueHtml) {
+    const row = document.createElement('div');
+    row.className = 'popover-row';
+    row.innerHTML = `<span class="popover-icon">${icon}</span><span class="popover-row-label">${label}</span><span class="popover-row-value">${valueHtml}</span>`;
+    popoverBody.appendChild(row);
+  }
+
+  const isSingleDay = ev.start === ev.end;
+  addRow('📅', 'Date', isSingleDay ? formatDate(ev.start) : `${formatDate(ev.start)} → ${formatDate(ev.end)}`);
+  if (ev.city) addRow('📍', 'City', ev.city);
+
+  if (ev.members) {
+    const tagsHtml = getMemberList(ev).map(p => {
+      const c = personColors[p];
+      return c ? `<span class="popover-member-tag" style="background:${c.bg};color:${c.text};border-color:${c.border};">${p}</span>` : `<span class="popover-member-tag">${p}</span>`;
+    }).join('');
+    addRow('👤', 'Team', tagsHtml);
+  } else {
+    addRow('👤', 'Team', '<span style="color:var(--muted);font-style:italic;">Unassigned</span>');
+  }
+
+  if (ev.priority) {
+    addRow('⭐', 'Priority', `<span class="popover-stars">${'★'.repeat(ev.priority)}${'☆'.repeat(5-ev.priority)}</span> <span style="color:var(--muted);font-size:0.65rem;">${ev.priority}/5</span>`);
+  }
+}
+
+function showEditMode(ev) {
+  popoverBody.style.display = 'none';
+  popoverEditForm.style.display = 'flex';
+  popoverEditBtn.style.display = 'none';
+
+  // Populate fields
+  editName.value  = ev.name;
+  editStart.value = ev.start;
+  editEnd.value   = ev.end;
+  editCity.value  = ev.city || '';
+  editApproved.checked = ev.approved;
+  editApprovedLbl.textContent = ev.approved ? 'Approved' : 'Pending';
+  editApprovedLbl.style.color = ev.approved ? 'var(--approved)' : 'var(--muted)';
+
+  // Member toggles
+  editMemberToggles.innerHTML = '';
+  allPeople.forEach(p => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'member-toggle' + (getMemberList(ev).includes(p) ? ' selected' : '');
+    btn.textContent = p;
+    btn.dataset.person = p;
+    const c = personColors[p];
+    if (c && getMemberList(ev).includes(p)) {
+      btn.style.cssText = `background:${c.bg};color:${c.text};border-color:${c.border};`;
+    }
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('selected');
+      if (btn.classList.contains('selected') && c) {
+        btn.style.cssText = `background:${c.bg};color:${c.text};border-color:${c.border};`;
+      } else {
+        btn.style.cssText = '';
+      }
+    });
+    editMemberToggles.appendChild(btn);
+  });
+
+  // Star rating
+  editPriority = ev.priority || 0;
+  renderEditStars();
+
+  editApproved.addEventListener('change', () => {
+    editApprovedLbl.textContent = editApproved.checked ? 'Approved' : 'Pending';
+    editApprovedLbl.style.color = editApproved.checked ? 'var(--approved)' : 'var(--muted)';
+  });
+}
+
+function renderEditStars() {
+  editStarsEl.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'star-btn' + (i <= editPriority ? ' on' : '');
+    btn.textContent = '★';
+    btn.addEventListener('click', () => {
+      editPriority = editPriority === i ? 0 : i;
+      renderEditStars();
+    });
+    editStarsEl.appendChild(btn);
+  }
+  const clr = document.createElement('button');
+  clr.type = 'button';
+  clr.className = 'star-clear';
+  clr.textContent = 'clear';
+  clr.addEventListener('click', () => { editPriority = 0; renderEditStars(); });
+  editStarsEl.appendChild(clr);
+}
+
+function openPopover(ev, barEl) {
+  currentEvIdx = events.indexOf(ev);
+  showViewMode(ev);
+  popover.style.display = 'block';
+  popoverOverlay.classList.add('open');
+  positionPopover(barEl);
+}
+
+function positionPopover(barEl) {
+  const rect = barEl ? barEl.getBoundingClientRect() : { left: window.innerWidth/2 - 160, bottom: window.innerHeight/2, top: window.innerHeight/2 - 10 };
+  const pw = 320, margin = 8;
+  const ph = popover.offsetHeight || 260;
+  let left = rect.left;
+  let top  = rect.bottom + margin;
+  if (left + pw > window.innerWidth - margin) left = window.innerWidth - pw - margin;
+  if (left < margin) left = margin;
+  if (top + ph > window.innerHeight - margin) top = rect.top - ph - margin;
+  if (top < margin) top = margin;
+  popover.style.left = left + 'px';
+  popover.style.top  = top + 'px';
+}
+
+function closePopover() {
+  popover.style.display = 'none';
+  popoverOverlay.classList.remove('open');
+  currentEvIdx = null;
+}
+
+popoverClose.addEventListener('click', closePopover);
+popoverOverlay.addEventListener('click', closePopover);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopover(); });
+
+popoverEditBtn.addEventListener('click', () => {
+  if (currentEvIdx !== null) showEditMode(events[currentEvIdx]);
+});
+
+editCancelBtn.addEventListener('click', () => {
+  if (currentEvIdx !== null) showViewMode(events[currentEvIdx]);
+});
+
+editSaveBtn.addEventListener('click', () => {
+  if (currentEvIdx === null) return;
+  const ev = events[currentEvIdx];
+
+  // Gather selected members
+  const selectedMembers = [...editMemberToggles.querySelectorAll('.member-toggle.selected')]
+    .map(b => b.dataset.person).join(', ');
+
+  // Apply changes
+  ev.name     = editName.value.trim() || ev.name;
+  ev.start    = editStart.value;
+  ev.end      = editEnd.value;
+  ev.city     = editCity.value.trim();
+  ev.members  = selectedMembers;
+  ev.priority = editPriority;
+  ev.approved = editApproved.checked;
+
+  // Re-render the calendar
+  rebuildCalendar();
+  if (typeof renderTable === 'function') renderTable();
+
+  // Switch back to view mode with updated data
+  showViewMode(ev);
+
+  // Re-position (bar has moved)
+  setTimeout(() => positionPopover(document.querySelector(`.event-bar[data-ev-idx="${currentEvIdx}"]`)), 50);
+});
+
+// Attach click to bars
+document.addEventListener('click', e => {
+  const bar = e.target.closest('.event-bar');
+  if (bar) {
+    e.stopPropagation();
+    const idx = parseInt(bar.dataset.evIdx);
+    if (!isNaN(idx)) openPopover(events[idx], bar);
+  }
+});
+
+const BAR_H   = 22;
+const BAR_GAP = 3;
+const DAY_NUM_H = 24;
+
+const cal = document.getElementById('calendar');
+const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+
+function rebuildCalendar() {
+  cal.innerHTML = '';
+
+months.forEach(({ year, month, label }) => {
+  const firstDOW    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+
+  let evCount = 0;
+  events.forEach(ev => { if (parseDate(ev.start).getFullYear()===year && parseDate(ev.start).getMonth()===month) evCount++; });
+
+  const block = document.createElement('div');
+  block.className = 'month-block';
+
+  const mHead = document.createElement('div');
+  mHead.className = 'month-label';
+  mHead.innerHTML = `${label} <span class="event-count">${evCount} event${evCount!==1?'s':''}</span>`;
+  block.appendChild(mHead);
+
+  const dowRow = document.createElement('div');
+  dowRow.className = 'dow-header';
+  DAY_NAMES.forEach(d => { const c=document.createElement('div'); c.className='dow-cell'; c.textContent=d; dowRow.appendChild(c); });
+  block.appendChild(dowRow);
+
+  // Build weeks
+  const weeks = [];
+  let week = [];
+  for (let i=0;i<firstDOW;i++) week.push(null);
+  for (let d=1;d<=daysInMonth;d++) {
+    week.push(new Date(year,month,d));
+    if (week.length===7) { weeks.push(week); week=[]; }
+  }
+  if (week.length>0) { while(week.length<7) week.push(null); weeks.push(week); }
+
+  weeks.forEach(weekDays => {
+    const validDays  = weekDays.filter(d=>d!==null);
+    const weekStart  = validDays[0];
+    const weekEnd    = validDays[validDays.length-1];
+
+    // Events overlapping this week, sorted alphabetically
+    const weekEvs = events.filter(ev => {
+      const s=parseDate(ev.start), e=parseDate(ev.end);
+      return s<=weekEnd && e>=weekStart;
+    }).sort((a, b) => a.name.localeCompare(b.name));
+
+    // Greedy lane assignment
+    const laneEnds = [];
+    const evLane   = new Map();
+    weekEvs.forEach(ev => {
+      const visStart = parseDate(ev.start) < weekStart ? weekStart : parseDate(ev.start);
+      let lane = laneEnds.findIndex(end => end < visStart);
+      if (lane===-1) { lane=laneEnds.length; laneEnds.push(null); }
+      laneEnds[lane] = parseDate(ev.end);
+      evLane.set(ev, lane);
+    });
+
+    const numLanes  = laneEnds.length;
+    const rowHeight = DAY_NUM_H + numLanes*(BAR_H+BAR_GAP) + 8;
+
+    const weekRow = document.createElement('div');
+    weekRow.className = 'week-row';
+    weekRow.style.minHeight = rowHeight+'px';
+
+    // Day cells
+    weekDays.forEach(date => {
+      const cell = document.createElement('div');
+      if (!date) {
+        cell.className = 'day-cell empty';
+      } else {
+        const isToday = sameDay(date, todayDate);
+        cell.className = 'day-cell'+(isToday?' today-marker':'');
+        const num = document.createElement('span');
+        num.className = 'day-num'+(isToday?' today':'');
+        num.textContent = date.getDate();
+        cell.appendChild(num);
+      }
+      cell.style.minHeight = rowHeight+'px';
+      weekRow.appendChild(cell);
+    });
+
+    // Event bars
+    weekEvs.forEach(ev => {
+      const evStart = parseDate(ev.start);
+      const evEnd   = parseDate(ev.end);
+      const lane    = evLane.get(ev);
+
+      const visStart = evStart < weekStart ? weekStart : evStart;
+      const visEnd   = evEnd   > weekEnd   ? weekEnd   : evEnd;
+
+      const colStart = weekDays.findIndex(d => d && sameDay(d, visStart));
+      const colEnd   = weekDays.findIndex(d => d && sameDay(d, visEnd));
+      if (colStart===-1||colEnd===-1) return;
+
+      const colW  = 100/7;
+      const left  = colStart*colW + 0.25;
+      const width = (colEnd-colStart+1)*colW - 0.5;
+      const top   = DAY_NUM_H + lane*(BAR_H+BAR_GAP) + 2;
+
+      const bar = document.createElement('div');
+      bar.className = 'event-bar '+(ev.approved?'approved':'pending');
+      bar.dataset.members = ev.members||'';
+      bar.dataset.evIdx = events.indexOf(ev);
+      bar.style.cssText = `left:${left}%;width:${width}%;top:${top}px;height:${BAR_H}px;`;
+      const isStartSeg = sameDay(evStart, visStart);
+
+      // Stars
+      if (ev.priority) {
+        const s=document.createElement('span');
+        s.className='bar-stars';
+        s.textContent='★'.repeat(ev.priority);
+        bar.appendChild(s);
+      }
+
+      // Name
+      const nameEl = document.createElement('span');
+      nameEl.className = 'bar-name';
+      nameEl.textContent = (ev.city === 'Toronto' ? '🏥 ' : '') + ev.name;
+      bar.appendChild(nameEl);
+
+      // Member tags (only on start segment)
+      if (isStartSeg && ev.members) {
+        getMemberList(ev).forEach(p => {
+          const c = personColors[p];
+          if (!c) return;
+          const tag = document.createElement('span');
+          tag.className = 'bar-tag';
+          tag.textContent = p;
+          tag.style.cssText = `background:${c.bg};color:${c.text};border:1px solid ${c.border};`;
+          bar.appendChild(tag);
+        });
+      }
+
+      // Apply current filter
+      if (activeFilter!=='all') {
+        const list = getMemberList(ev);
+        if (!list.includes(activeFilter)) bar.classList.add('dimmed');
+      }
+
+      weekRow.appendChild(bar);
+    });
+
+    block.appendChild(weekRow);
+  });
+
+  cal.appendChild(block);
+});
+} // end rebuildCalendar
+
+rebuildCalendar();
+
+// ── Events Table ──
+const tableBody        = document.getElementById('tableBody');
+const tableSearch      = document.getElementById('tableSearch');
+const tablePersonFilter = document.getElementById('tablePersonFilter');
+const tableStatusFilter = document.getElementById('tableStatusFilter');
+const tableFooter      = document.getElementById('tableFooter');
+
+// Populate person filter dropdown
+allPeople.forEach(p => {
+  const opt = document.createElement('option');
+  opt.value = p; opt.textContent = p;
+  tablePersonFilter.appendChild(opt);
+});
+
+let tableSortCol = 'start';
+let tableSortDir = 'asc';
+
+function formatDateShort(str) {
+  const d = parseDate(str);
+  return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getTableRows() {
+  const search = tableSearch.value.trim().toLowerCase();
+  const person = tablePersonFilter.value;
+  const status = tableStatusFilter.value;
+
+  return events.filter(ev => {
+    if (search && !ev.name.toLowerCase().includes(search) && !(ev.city||'').toLowerCase().includes(search)) return false;
+    if (person !== 'all' && !getMemberList(ev).includes(person)) return false;
+    if (status === 'approved' && !ev.approved) return false;
+    if (status === 'pending' && ev.approved) return false;
+    return true;
+  }).sort((a, b) => {
+    let va, vb;
+    if (tableSortCol === 'name')      { va = a.name.toLowerCase(); vb = b.name.toLowerCase(); }
+    else if (tableSortCol === 'start')    { va = a.start; vb = b.start; }
+    else if (tableSortCol === 'end')      { va = a.end;   vb = b.end; }
+    else if (tableSortCol === 'priority') { va = a.priority||0; vb = b.priority||0; }
+    else if (tableSortCol === 'approved') { va = a.approved?1:0; vb = b.approved?1:0; }
+    else return 0;
+    if (va < vb) return tableSortDir === 'asc' ? -1 : 1;
+    if (va > vb) return tableSortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+function renderTable() {
+  const rows = getTableRows();
+  tableBody.innerHTML = '';
+
+  if (rows.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="7" class="no-results">No events match your filters.</td>`;
+    tableBody.appendChild(tr);
+    tableFooter.textContent = '0 events';
+    return;
+  }
+
+  rows.forEach(ev => {
+    const tr = document.createElement('tr');
+    const isToronto = ev.city === 'Toronto';
+
+    const memberHtml = ev.members
+      ? getMemberList(ev).map(p => {
+          const c = personColors[p];
+          return c ? `<span class="td-member-tag" style="background:${c.bg};color:${c.text};border-color:${c.border};">${p}</span>` : `<span class="td-member-tag">${p}</span>`;
+        }).join('')
+      : '<span style="color:var(--muted);font-style:italic;font-size:0.65rem;">Unassigned</span>';
+
+    const priorityHtml = ev.priority
+      ? `<span class="td-stars">${'★'.repeat(ev.priority)}</span>`
+      : '<span style="color:var(--muted)">—</span>';
+
+    const statusHtml = ev.approved
+      ? `<span class="td-status approved">✓ Approved</span>`
+      : `<span class="td-status pending">⏳ Pending</span>`;
+
+    tr.innerHTML =
+      `<td class="td-name">${isToronto ? '🏥 ' : ''}${ev.name}</td>` +
+      `<td>${formatDateShort(ev.start)}</td>` +
+      `<td>${ev.start === ev.end ? '—' : formatDateShort(ev.end)}</td>` +
+      `<td>${ev.city || '<span style="color:var(--muted)">—</span>'}</td>` +
+      `<td>${memberHtml}</td>` +
+      `<td>${priorityHtml}</td>` +
+      `<td>${statusHtml}</td>`;
+
+    tr.style.cursor = 'pointer';
+    tr.addEventListener('click', () => {
+      const bar = document.querySelector(`.event-bar[data-ev-idx="${events.indexOf(ev)}"]`);
+      openPopover(ev, bar || tr);
+    });
+
+    tableBody.appendChild(tr);
+  });
+
+  tableFooter.textContent = `${rows.length} event${rows.length !== 1 ? 's' : ''}`;
+}
+
+// Sort on header click
+document.querySelectorAll('#eventsTable th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (tableSortCol === col) {
+      tableSortDir = tableSortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      tableSortCol = col;
+      tableSortDir = 'asc';
+    }
+    document.querySelectorAll('#eventsTable th').forEach(h => h.classList.remove('sort-asc','sort-desc'));
+    th.classList.add(tableSortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+    renderTable();
+  });
+});
+
+// Initial sort indicator
+document.querySelector('#eventsTable th[data-col="start"]').classList.add('sort-asc');
+
+tableSearch.addEventListener('input', renderTable);
+tablePersonFilter.addEventListener('change', renderTable);
+tableStatusFilter.addEventListener('change', renderTable);
+
+// Re-render table after calendar edits
+const origRebuild = rebuildCalendar;
+function rebuildCalendarAndTable() {
+  origRebuild();
+  renderTable();
+}
+
+renderTable();
+
+</script>
+</body>
+</html>
